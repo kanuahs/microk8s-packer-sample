@@ -1,5 +1,5 @@
 {
-  "description": "Uses ubuntu 16.04 iso, creates an ovf image. username, fullname and password are also set in http/preseed.cfg",
+  "description": "Uses ubuntu 16.04 iso,installs microk8s, and launches a flask application and creates an ovf image. username, fullname and password are also set in http/preseed.cfg",
   "variables": {
     "hostname": "ubuntu",
     "fullname": "user1",
@@ -55,6 +55,10 @@
     "ssh_password": "{{user `password`}}",
     "ssh_port": 22,
     "ssh_wait_timeout": "10000s"
+  }],
+  "provisioners": [{
+    "type": "ansible",
+    "playbook_file": "ansible/playbook.yaml",
+    "user": "user1"
   }]
-
 }
