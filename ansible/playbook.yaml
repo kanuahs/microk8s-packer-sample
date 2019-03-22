@@ -1,0 +1,16 @@
+---
+  - hosts: all
+    become: yes
+    gather_facts: yes
+
+    tasks:
+      - name: install microk8s
+        snap:
+          name: microk8s
+          classic: yes
+
+      - name: deploy a sample pod
+        shell: microk8s.kubectl apply -f https://raw.githubusercontent.com/kanuahs/flask-sample-app/master/kubernetes-deployment.yaml
+
+      - name: deploy a sample service
+        shell: microk8s.kubectl apply -f https://raw.githubusercontent.com/kanuahs/flask-sample-app/master/kubernetes-service.yaml
