@@ -1,16 +1,18 @@
-Requirements:
+# Requirements:
 * virtualbox
 * packer
 * ansible
 
-
+# Usage
 To build the virtual appliance, run:
 
 ```packer build ubuntu1604-microk8s.json```
 
 This will generate ovf and vmdk files in output-virtualbox-iso
 
-
+# Todo
+* Better password handling (currently passed as plaintext and it's printed in logs)
+* Improve Username Password Configuration (has to be declared in both preseed.cfg and ubuntu1604-microk8s.json)
 
 Reference links:
 * builder.boot_commands: https://packer.io/docs/builders/virtualbox-iso.html#boot-command 
