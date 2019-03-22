@@ -59,6 +59,7 @@
   "provisioners": [{
     "type": "ansible",
     "playbook_file": "ansible/playbook.yaml",
-    "user": "user1"
+    "user": "user1",
+    "extra_arguments":["--extra-vars","ansible_become_pass={{user `password`}}"]
   }]
 }
