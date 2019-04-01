@@ -6,7 +6,10 @@
 # Usage
 To build the virtual appliance, run:
 
+* Ubuntu
 ```packer build ubuntu1604-microk8s.json```
+
+* CentOS
 ```packer build centos7.json```
 
 This will generate ovf and vmdk files in output-virtualbox-iso
