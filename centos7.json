@@ -1,0 +1,57 @@
+{
+    "description": "Uses Centos7 iso,installs microk8s, and launches a flask application and creates an ovf image. username, fullname and password are also set in http/anaconda-ks.cfg",
+    "variables": {
+      "username": "user1",
+      "password": "pass1",
+      "disk_size": "20480"
+    },
+    "builders": [
+      {
+        "type": "virtualbox-iso",
+        "boot_command": [
+          "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/anaconda-ks.cfg<enter><wait>"
+        ],
+        "boot_wait": "10s",
+        "disk_size": "{{user `disk_size`}}",
+        "guest_os_type": "RedHat_64",
+        "headless": true,
+        "http_directory": "http",
+        "iso_urls": [
+          "CentOS-7-x86_64-Minimal-1810.iso",
+          "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso"
+        ],
+        "iso_checksum_type": "sha256",
+        "iso_checksum_url": "http://mirror.centos.org/centos/7/isos/x86_64/sha256sum.txt.asc",
+        "shutdown_command": "echo '{{user `password`}}'|sudo -S /sbin/halt -h -p",
+        "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+        "virtualbox_version_file": ".vbox_version",
+        "vm_name": "packer-centos-7-x86_64",
+        "vboxmanage": [
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--memory",
+            "2048"
+          ],
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--cpus",
+            "2"
+          ]
+        ],
+
+        "communicator": "ssh",
+        "ssh_username": "{{user `username`}}",
+        "ssh_password": "{{user `password`}}",
+        "ssh_port": 22,
+        "ssh_wait_timeout": "10000s"
+      }
+    ],
+    "provisioners": [{
+      "type": "ansible",
+      "playbook_file": "ansible/centos-playbook.yaml",
+      "user": "user1",
+      "extra_arguments":["--extra-vars","ansible_become_pass={{user `password`}} ssh_username={{user `username`}}"]
+    }]
+  }

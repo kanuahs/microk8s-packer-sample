@@ -1,0 +1,56 @@
+---
+  - hosts: all
+    become: yes
+    gather_facts: yes
+    
+    tasks:
+      - name: Add epel-release on CentOS
+        yum:
+          name: epel-release
+          state: latest
+          update_cache: yes
+
+      - name: make sure snapd is installed on CentOS
+        yum:
+          name: snapd
+          state: latest
+          update_cache: yes
+
+      - name: enable classic snaps on CentOS
+        file:
+          state: link
+          src: /var/lib/snapd/snap
+          dest: /snap
+
+      - name: enable snapd on CentOS
+        shell: "{{ item }}"
+        with_items:
+          - systemctl enable --now snapd.socket
+          - systemctl restart snapd
+
+      - name: Wait 2 min for snapd to start
+        wait_for: timeout=120
+        when: ansible_distribution == 'CentOS'
+
+      - name: install microk8s snap
+        become: yes
+        shell: snap install microk8s --classic
+
+      - name: get kubernetes deployment yaml file
+        get_url:
+          url: https://raw.githubusercontent.com/kanuahs/flask-sample-app/master/kubernetes-deployment.yaml
+          dest: ~/kubernetes-deployment.yaml
+
+      - name: get kubernetes service yaml file
+        get_url:
+            url: https://raw.githubusercontent.com/kanuahs/flask-sample-app/master/kubernetes-service.yaml
+            dest: ~/kubernetes-service.yaml
+
+      - name: make sure that microk8s is ready before trying to deploy anything
+        shell: /snap/bin/microk8s.status --wait-ready
+
+      - name: create a sample deployment
+        shell: /snap/bin/microk8s.kubectl apply -f ~/kubernetes-deployment.yaml
+
+      - name: create a sample service
+        shell: /snap/bin/microk8s.kubectl apply -f ~/kubernetes-service.yaml
